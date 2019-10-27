@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: eureka-client-a
+
+eureka:
+  client:
+    fetch-registry: true #是否从eureka上面拉取服务列表
+    register-with-eureka: true #是否把自己注册到eureka上面
+    serviceUrl: #不要使用service-url，有小Bug
+      defaultZone: http://localhost:8761/eureka/  #向哪个注册中心注册自己
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+
