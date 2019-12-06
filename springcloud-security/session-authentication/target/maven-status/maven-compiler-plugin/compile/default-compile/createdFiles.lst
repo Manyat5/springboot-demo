@@ -1,0 +1,6 @@
+com\wwy\session\config\WebConfig.class
+com\wwy\session\model\UserDto.class
+com\wwy\session\init\SpringApplicationInitializer.class
+com\wwy\session\service\AuthenticationService.class
+com\wwy\session\model\AuthenticationRequest.class
+com\wwy\session\config\AppConfig.class

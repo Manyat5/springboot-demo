@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="session-authentication">
+    <output-path>$PROJECT_DIR$/out/artifacts/session_authentication</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="session-authentication/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="session-authentication" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
