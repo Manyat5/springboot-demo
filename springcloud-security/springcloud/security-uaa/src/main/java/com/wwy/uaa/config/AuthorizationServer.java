@@ -1,11 +1,11 @@
 package com.wwy.uaa.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -15,12 +15,9 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
-import org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
@@ -34,8 +31,7 @@ import java.util.Arrays;
 @EnableAuthorizationServer
 public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     @Autowired
-    private AuthorizationServerTokenServices tokenServices;
-    @Autowired
+    @Qualifier("authenticationManagerBean")
     private AuthenticationManager authenticationManager;
     @Autowired
     private AuthorizationCodeServices authorizationCodeServices;
@@ -43,6 +39,8 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
     private JwtAccessTokenConverter jwtAccessTokenConverter;
     @Autowired
     private JdbcClientDetailsService jdbcClientDetailsService;
+    @Autowired
+    JwtTokenStore jwtTokenStore;
     /**
      * 用于配置客户端详情服务
      */
@@ -72,7 +70,23 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        super.configure(endpoints);
+        /*
+        设置tokenServices
+         */
+        DefaultTokenServices tokenServices = (DefaultTokenServices) endpoints.getDefaultAuthorizationServerTokenServices();
+        tokenServices.setClientDetailsService(jdbcClientDetailsService);
+        //支持刷新令牌
+        tokenServices.setSupportRefreshToken(true);
+        //令牌刷新策略
+        tokenServices.setTokenStore(jwtTokenStore);
+        //令牌增强
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter));
+        tokenServices.setTokenEnhancer(tokenEnhancerChain);
+        //令牌默认有效期为2h
+        tokenServices.setAccessTokenValiditySeconds(7200);
+        //刷新令牌默认有效期3d
+        tokenServices.setRefreshTokenValiditySeconds(259200);
         endpoints
                 //密码模式需要,认证管理器
                 .authenticationManager(authenticationManager)
@@ -99,27 +113,10 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
                 .allowFormAuthenticationForClients();
     }
 
-    @Bean
-    public AuthorizationServerTokenServices tokenServices(ClientDetailsService clientDetailsService,
-                                                          JwtTokenStore jwtTokenStore,
-                                                          JwtAccessTokenConverter jwtAccessTokenConverter){
-        DefaultTokenServices tokenServices = new DefaultTokenServices();
-        tokenServices.setClientDetailsService(clientDetailsService);
-        //支持刷新令牌
-        tokenServices.setSupportRefreshToken(true);
-        //令牌刷新策略
-        tokenServices.setTokenStore(jwtTokenStore);
-        //令牌增强
-        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        System.out.println("上帝但是"+jwtAccessTokenConverter);
-        tokenEnhancerChain.setTokenEnhancers(Arrays.asList(jwtAccessTokenConverter));
-        tokenServices.setTokenEnhancer(tokenEnhancerChain);
-        //令牌默认有效期为2h
-        tokenServices.setAccessTokenValiditySeconds(7200);
-        //刷新令牌默认有效期3d
-        tokenServices.setRefreshTokenValiditySeconds(259200);
+    /*@Bean
+    public AuthorizationServerTokenServices tokenServices(DefaultTokenServices tokenServices,ClientDetailsService clientDetailsService){
         return tokenServices;
-    }
+    }*/
     @Bean
     public AuthorizationCodeServices authorizationCodeServices(DataSource dataSource){
         //设置授权码存取模式，采用内存
