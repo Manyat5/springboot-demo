@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="client1" />
+        <module name="client2" />
+        <module name="eureka-server" />
+        <module name="security-uac" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="8">
+      <module name="client1" target="1.8" />
+      <module name="client2" target="1.8" />
+      <module name="eureka-server" target="1.8" />
+      <module name="security-gateway" target="1.8" />
+      <module name="security-order" target="1.8" />
+      <module name="security-uaa" target="1.8" />
+      <module name="security-uac" target="1.8" />
+      <module name="springcloud" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="client1" options="" />
+      <module name="eureka-server" options="" />
+      <module name="security-gateway" options="" />
+      <module name="security-order" options="" />
+      <module name="security-uaa" options="" />
+      <module name="security-uac" options="" />
+    </option>
+  </component>
+</project>

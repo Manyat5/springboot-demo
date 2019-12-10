@@ -1,0 +1,14 @@
+auth-server: http://localhost:9200/uac
+server:
+  port: 9300
+
+security:
+  oauth2:
+    client:
+      client-id: client1
+      client-secret: 123
+      user-authorization-uri: ${auth-server}/oauth/authorize
+      access-token-uri: ${auth-server}/oauth/token
+    resource:
+      jwt:
+        key-uri: ${auth-server}/uac/oauth/token_key
